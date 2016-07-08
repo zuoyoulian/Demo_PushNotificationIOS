@@ -17,7 +17,7 @@ PushNotificationIOS.addEventListener('register', this._registNotification.bind(t
 第一个参数是监听时间的标识，register表示注册；  
 第二个参数是监听回调函数，当注册远程通知时会调用；
 ```  
-  b、监听接收推送消息  
+    b、监听接收推送消息  
 ```
 PushNotificationIOS.addEventListener('notification', this._onNotification.bind(this));
 参数：  
@@ -31,5 +31,14 @@ PushNotificationIOS.addEventListener('notification', this._onNotification.bind(t
 7. 设置要在手机主屏幕应用图标上显示的角标数（未读消息数）`static setApplicationIconBadgeNumber(number: number)`   
 8. 获取目前在手机主屏幕应用图标上显示的角标数（未读消息数）`static getApplicationIconBadgeNumber(callback: Function)` 
 
+## 实现远程推送通知
+### 第一步 
+#### 链接PushNotificationIOS的库  
 
-
+* 将`node_modules/react-native/Libraries/PushNotificationIOS/RCTPushNotification.xcodeproj`文件拖到Xcode界面中  
+* 在Xcode的`Link Binary With Libraries`中添加`libRCTPushNotification.a`  
+* 在`Header Search Paths`中添加: `$(SRCROOT)/../node_modules/react-native/Libraries/PushNotificationIOS`  
+* 将搜索选项设为`recursive`   
+   
+#### 在AppDelegate中启用推送通知的支持以及注册相应的事件 
+在`AppDelegate.m`开头`#import "RCTPushNotificationManager.h"`  
