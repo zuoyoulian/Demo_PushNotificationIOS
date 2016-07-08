@@ -4,7 +4,7 @@
 苹果的设备对于应用程序在后台运行有诸多限制（除非你越狱）。因此，当用户切换到其他程序或者退出程序后，原先的程序无法保持运行状态。对于那些需要保持持续连接状态的应用程序（比如社区网络应用），将不能收到实时的信息。  
 为了解决这一限制，苹果推出了`APNS`（苹果推送通知服务）。`APNS`允许设备与苹果的推送通知服务器保持常连接状态。当你想发送一个推送通知给某个用户的iPhone上的应用程序时，你可以使用 `APNS`发送一个推送消息给目标设备上已安装的某个应用程序。  
 要使用推送通知功能，首先[在苹果后台配置推送通知服务](https://developer.apple.com/library/ios/documentation/IDEs/Conceptual/AppDistributionGuide/AddingCapabilities/AddingCapabilities.html#//apple_ref/doc/uid/TP40012582-CH26-SW6)并且准备好服务端的系统。设置的过程可以参考[Parse的教程](https://github.com/ParsePlatform/PushTutorial/tree/master/iOS)。
-## PushNotificationIOS运程推送的主要方法
+## PushNotificationIOS远程推送的主要方法
 `PushNotificationIOS`是`React Native`对苹果的API的封装，通过js函数来进行推送通知的注册、获取推送的消息、设置角标等功能。
 
 1. 向iOS系统请求通知权限: `static requestPermissions(permissions?: { alert?: boolean, badge?: boolean, sound?: boolean })`   
