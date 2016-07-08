@@ -41,4 +41,16 @@ PushNotificationIOS.addEventListener('notification', this._onNotification.bind(t
 * 将搜索选项设为`recursive`   
    
 #### 在AppDelegate中启用推送通知的支持以及注册相应的事件 
-在`AppDelegate.m`开头`#import "RCTPushNotificationManager.h"`  
+* 在`AppDelegate.m`开头`#import "RCTPushNotificationManager.h"`
+* 在AppDelegate实现中添加如下的代码
+```
+- (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
+  [RCTPushNotificationManager didRegisterUserNotificationSettings:notificationSettings];
+}
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+  [RCTPushNotificationManager didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+}
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)notification {
+  [RCTPushNotificationManager didReceiveRemoteNotification:notification];
+}
+```  
