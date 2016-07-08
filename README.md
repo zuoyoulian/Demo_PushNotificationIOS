@@ -46,12 +46,15 @@ PushNotificationIOS.addEventListener('notification', this._onNotification.bind(t
 * 在AppDelegate实现中添加如下的代码
 
 ```
+// 注册消息推送
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
   [RCTPushNotificationManager didRegisterUserNotificationSettings:notificationSettings];
 }
+// 获取tocken
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
   [RCTPushNotificationManager didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
+// 接收消息
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)notification {
   [RCTPushNotificationManager didReceiveRemoteNotification:notification];
 }
@@ -141,7 +144,10 @@ this._onNotification.bind(this)  表示接收到消息后的回调函数
 _onNotification(notification) {
   // 获取消息对象
   const data = notification.getData();
-  // 获取消息对象中的url对象
+  // 获取消息对象中的url对象，如果不存在直接返回
+  if(data.url == url) {
+      return;
+  }
   this.state.url = data.url;
     
   // 获取主消息内容
@@ -183,3 +189,25 @@ _gotoDetail(notification) {
   });
 }
 ```
+#### 当程序未启动时接收到消息的处理
+程序未启动时，接收到通知后点击消息开启应用，接收消息的代理方法：`- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)notification`不会被触发，但是消息内容会放到程序完成启动的代理方法：`- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions`的参数launchOptions中；  
+所以，在这种情况下的处理是在`- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions`方法中添加如下代码：  
+
+```
+//  程序未运行时接收到通知，点消息栏启动应用会接收到消息
+if (launchOptions) {
+  // 获取远程推送的消息内容
+  self.userInfoDic = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+  // 延迟执行
+  [self performSelector:@selector(delayMethod) withObject:nil afterDelay:1.0];
+  }
+```
+定义延迟执行方法：  
+在方法中将获取到的消息内容发送个推送消息管理对象，这样就可以让PushNotificationIOS监听到远程消息推送  
+
+```
+- (void)delayMethod {
+  [RCTPushNotificationManager didReceiveRemoteNotification:self.userInfoDic];
+}
+```
+

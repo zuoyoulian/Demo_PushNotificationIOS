@@ -56,7 +56,6 @@
 //程序未运行时接收到通知，点消息栏启动应用会接收到消息
   if (launchOptions) {
     self.userInfoDic = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
-    
     // 延迟执行
 //    [self delayMethod];
     [self performSelector:@selector(delayMethod) withObject:nil afterDelay:1.0];
@@ -88,15 +87,15 @@
 //  [self.window addSubview:textView];
 }
 
-
+// 注册消息推送
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
   [RCTPushNotificationManager didRegisterUserNotificationSettings:notificationSettings];
 }
-
+// 获取tocken
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
   [RCTPushNotificationManager didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
-
+// 接收消息
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)notification {
   [RCTPushNotificationManager didReceiveRemoteNotification:notification];
 }
