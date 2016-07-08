@@ -1,0 +1,3 @@
+rootProject.name = 'Demo_PushNotificationIOS11'
+
+include ':app'
