@@ -4,7 +4,7 @@
 苹果的设备对于应用程序在后台运行有诸多限制（除非你越狱）。因此，当用户切换到其他程序或者退出程序后，原先的程序无法保持运行状态。对于那些需要保持持续连接状态的应用程序（比如社区网络应用），将不能收到实时的信息。  
 为了解决这一限制，苹果推出了`APNS`（苹果推送通知服务）。`APNS`允许设备与苹果的推送通知服务器保持常连接状态。当你想发送一个推送通知给某个用户的iPhone上的应用程序时，你可以使用 `APNS`发送一个推送消息给目标设备上已安装的某个应用程序。  
 要使用推送通知功能，首先[在苹果后台配置推送通知服务](https://developer.apple.com/library/ios/documentation/IDEs/Conceptual/AppDistributionGuide/AddingCapabilities/AddingCapabilities.html#//apple_ref/doc/uid/TP40012582-CH26-SW6)并且准备好服务端的系统。设置的过程可以参考[Parse的教程](https://github.com/ParsePlatform/PushTutorial/tree/master/iOS)。
-## PushNotificationIOS常用的方法
+## PushNotificationIOS运程推送的主要方法
 `PushNotificationIOS`是`React Native`对苹果的API的封装，通过js函数来进行推送通知的注册、获取推送的消息、设置角标等功能。
 
 1. 向iOS系统请求通知权限: `static requestPermissions(permissions?: { alert?: boolean, badge?: boolean, sound?: boolean })`   
@@ -17,7 +17,8 @@ PushNotificationIOS.addEventListener('register', this._registNotification.bind(t
 第一个参数是监听时间的标识，register表示注册；  
 第二个参数是监听回调函数，当注册远程通知时会调用；
 ```  
-    b、监听接收推送消息  
+
+  b、监听接收推送消息  
 ```
 PushNotificationIOS.addEventListener('notification', this._onNotification.bind(this));
 参数：  
@@ -31,7 +32,7 @@ PushNotificationIOS.addEventListener('notification', this._onNotification.bind(t
 7. 设置要在手机主屏幕应用图标上显示的角标数（未读消息数）`static setApplicationIconBadgeNumber(number: number)`   
 8. 获取目前在手机主屏幕应用图标上显示的角标数（未读消息数）`static getApplicationIconBadgeNumber(callback: Function)` 
 
-## 实现远程推送通知
+## 实现远程推送通知的步骤
 ### 第一步 
 #### 链接PushNotificationIOS的库  
 
@@ -43,6 +44,7 @@ PushNotificationIOS.addEventListener('notification', this._onNotification.bind(t
 #### 在AppDelegate中启用推送通知的支持以及注册相应的事件 
 * 在`AppDelegate.m`开头`#import "RCTPushNotificationManager.h"`
 * 在AppDelegate实现中添加如下的代码
+
 ```
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
   [RCTPushNotificationManager didRegisterUserNotificationSettings:notificationSettings];
@@ -54,3 +56,130 @@ PushNotificationIOS.addEventListener('notification', this._onNotification.bind(t
   [RCTPushNotificationManager didReceiveRemoteNotification:notification];
 }
 ```  
+
+### 第二步
+在index.ios.js文件中完成下了步骤：
+#### 请求推送通知权限
+```
+PushNotificationIOS.requestPermissions();
+默认三个权限都开启
+alert 消息内容
+badge 显示在icon上的角标
+sound 声音
+```
+#### 注册tocken
+```
+ PushNotificationIOS.addEventListener('register', this._registNotification.bind(this));
+ 参数：
+ register 表示注册请求远程推送
+ this._registNotification.bind(this) 注册的回调函数
+```
+定义注册的回调函数，  
+参数`deviceToken`表示注册成功后，返回给客户端的设备标识；  
+获取到deviceToken后，调用_uploadDeviceTocken函数，将deviceToken发送给服务器
+
+```
+// 注册tocken的回调函数
+_registNotification(deviceToken){
+  console.log('tocken', deviceToken);
+  // 获取tocken成功，调用上传tocken的函数
+  if(deviceToken) {
+    this._uploadDeviceTocken('http://54.223.56.12/api/v0.4/users/appletoken', 'Bearer 8881bc9737a7fbe26a0d4ee5fa1e4da4b65b62c4', 'dev', deviceToken);
+  }
+}
+```
+定义上传tocken的函数，  
+参数：   
+fetchUrl 请求地址  
+authorization  用户认证  
+mode  对应环境  开发环境dev 生产环境online  
+token 设备远程推送标识
+
+```
+// 将注册成功后请求到的tocken传到服务器
+_uploadDeviceTocken(fetchUrl, authorization, mode, token) {
+  // 获取时间戳
+  let date = new Date();
+  console.log('timestamp', date.getTime());
+  // 请求接口
+  fetch(fetchUrl, {
+    method: 'POST',
+    headers: {
+      'Authorization': authorization,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      'mode': mode,
+      'token': token,
+      'expire_time':date.getTime(),
+    })
+  })
+  .then((response) => response.text())
+  .then((responseText) => {
+    console.log(responseText);
+  })
+  .catch((error) => {
+    console.log('error',error);
+  });
+}
+```
+#### 接收远程推送消息
+
+```
+PushNotificationIOS.addEventListener('notification', this._onNotification.bind(this)); 
+参数：
+notification 表示监听远程消息推送
+this._onNotification.bind(this)  表示接收到消息后的回调函数
+```
+定义接收到消息后的回调函数，
+参数`notification`是一个PushNotificationIOS实例，表示当前消息的发送者  
+当接收到消息之后，会给用户弹出一个提示框，提示用户是否查看详情；
+
+```
+// 监听收到消息的回调函数
+_onNotification(notification) {
+  // 获取消息对象
+  const data = notification.getData();
+  // 获取消息对象中的url对象
+  this.state.url = data.url;
+    
+  // 获取主消息内容
+  let message = notification.getMessage();
+  // 设置角标
+  PushNotificationIOS.setApplicationIconBadgeNumber(notification.getBadgeCount());
+  // 提示框
+  AlertIOS.alert(
+    '',
+    message,
+    [{
+      text: '取消',
+      onPress:function(){
+      // 阅读消息后角标－1
+        PushNotificationIOS.setApplicationIconBadgeNumber(notification.getBadgeCount()-1);
+      }
+    },
+    {
+      text: '查看',
+      onPress:this._gotoDetail.bind(this, notification),
+    }]
+  );
+}
+```
+定义查看详情的函数，  
+在函数中跳转到详情页面，并将从消息中获取的url复制给详情页面，并在详情页面中打开  
+
+```
+// 跳转到详情页面
+_gotoDetail(notification) {
+  // 查看一条消息，角标－1
+  PushNotificationIOS.setApplicationIconBadgeNumber(notification.getBadgeCount()-1);
+  this.refs.nav.push({
+    component: Detail, 
+    title: '详情',
+    passProps: {  
+      url: this.state.url
+    }
+  });
+}
+```
