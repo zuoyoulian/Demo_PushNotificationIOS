@@ -210,4 +210,3 @@ if (launchOptions) {
   [RCTPushNotificationManager didReceiveRemoteNotification:self.userInfoDic];
 }
 ```
-

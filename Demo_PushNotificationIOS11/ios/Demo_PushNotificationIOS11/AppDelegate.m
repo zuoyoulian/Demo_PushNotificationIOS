@@ -49,9 +49,6 @@
   [self.window makeKeyAndVisible];
   
   
-//  NSString *sss = @"eeee";
-//   NSDictionary* message =
-  
   
 //程序未运行时接收到通知，点消息栏启动应用会接收到消息
   if (launchOptions) {
