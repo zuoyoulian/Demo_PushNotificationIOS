@@ -13,17 +13,17 @@
 a、监听注册通知：
 ```
 PushNotificationIOS.addEventListener('register', this._registNotification.bind(this));
-```
 参数：  
 第一个参数是监听时间的标识，register表示注册；  
-第二个参数是监听回调函数，当注册远程通知时会调用；  
+第二个参数是监听回调函数，当注册远程通知时会调用；
+```  
 b、监听接收推送消息  
 ```
 PushNotificationIOS.addEventListener('notification', this._onNotification.bind(this));
-```
 参数：  
 第一个参数，notification表示接收远程推送通知；  
 第二个参数，接收到通知时的回调函数；  
+```
 3. 获取推送通知的主消息内容 `getMessage()`是`getAlert()`的别名，作用一样  
 4. 从aps对象中获取推送通知的主消息内容 `getAlert()`  
 5. 从aps对象中获取推送通知的角标数（未读消息数）`getBadgeCount()`   
