@@ -24,11 +24,11 @@ PushNotificationIOS.addEventListener('notification', this._onNotification.bind(t
 参数：  
 第一个参数，notification表示接收远程推送通知；  
 第二个参数，接收到通知时的回调函数；  
-3. 获取推送通知的主消息内容 `getMessage()`是`getAlert()`的别名，作用一样
-4. 从aps对象中获取推送通知的主消息内容 `getAlert()`
-5. 从aps对象中获取推送通知的角标数（未读消息数）`getBadgeCount()` 
-6. 获取推送的数据对象 `getData()` 
-7. 设置要在手机主屏幕应用图标上显示的角标数（未读消息数）`static setApplicationIconBadgeNumber(number: number)` 
+3. 获取推送通知的主消息内容 `getMessage()`是`getAlert()`的别名，作用一样  
+4. 从aps对象中获取推送通知的主消息内容 `getAlert()`  
+5. 从aps对象中获取推送通知的角标数（未读消息数）`getBadgeCount()`   
+6. 获取推送的数据对象 `getData()`   
+7. 设置要在手机主屏幕应用图标上显示的角标数（未读消息数）`static setApplicationIconBadgeNumber(number: number)`   
 8. 获取目前在手机主屏幕应用图标上显示的角标数（未读消息数）`static getApplicationIconBadgeNumber(callback: Function)` 
 
 
